@@ -1,10 +1,3 @@
-//
-//  easy_babyApp.swift
-//  easy_baby
-//
-//  Created by Jessie Wang on 18/4/2026.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -12,7 +5,11 @@ import SwiftData
 struct easy_babyApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            FeedingEntry.self,
+            SleepEntry.self,
+            DiaperEntry.self,
+            SupplementEntry.self,
+            GrowthEntry.self,
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
