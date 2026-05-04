@@ -5,6 +5,9 @@ struct AddSupplementView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
 
+    var entryToEdit: SupplementEntry?
+    private var isEditing: Bool { entryToEdit != nil }
+
     @State private var timestamp = Date()
     @State private var name = ""
     @State private var dosage = ""
@@ -27,7 +30,8 @@ struct AddSupplementView: View {
                         .lineLimit(3)
                 }
             }
-            .navigationTitle("Log Supplement")
+            .onAppear { populateFromEntry() }
+            .navigationTitle(isEditing ? "Edit Supplement" : "Log Supplement")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif
@@ -37,15 +41,31 @@ struct AddSupplementView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Save") { save() }
-                        .disabled(name.isEmpty)
+                        .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
         }
     }
 
+    private func populateFromEntry() {
+        guard let entry = entryToEdit else { return }
+        timestamp = entry.timestamp
+        name = entry.name
+        dosage = entry.dosage
+        notes = entry.notes
+    }
+
     private func save() {
-        let entry = SupplementEntry(timestamp: timestamp, name: name, dosage: dosage, notes: notes)
-        modelContext.insert(entry)
+        if let entry = entryToEdit {
+            entry.timestamp = timestamp
+            entry.name = name
+            entry.dosage = dosage
+            entry.notes = notes
+        } else {
+            let entry = SupplementEntry(timestamp: timestamp, name: name, dosage: dosage, notes: notes)
+            modelContext.insert(entry)
+        }
+        ReminderManager.reschedule()
         dismiss()
     }
 }

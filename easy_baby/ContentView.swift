@@ -2,32 +2,38 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @AppStorage("babyName") private var babyName = ""
+
     var body: some View {
-        TabView {
-            DashboardView()
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
+        if babyName.isEmpty {
+            OnboardingView()
+        } else {
+            TabView {
+                DashboardView()
+                    .tabItem {
+                        Label("Home", systemImage: "house.fill")
+                    }
 
-            FeedingListView()
-                .tabItem {
-                    Label("Feed", systemImage: "cup.and.saucer.fill")
-                }
+                FeedingListView()
+                    .tabItem {
+                        Label("Feed", systemImage: "cup.and.saucer.fill")
+                    }
 
-            SleepListView()
-                .tabItem {
-                    Label("Sleep", systemImage: "moon.fill")
-                }
+                SleepListView()
+                    .tabItem {
+                        Label("Sleep", systemImage: "moon.fill")
+                    }
 
-            DiaperListView()
-                .tabItem {
-                    Label("Diaper", systemImage: "drop.fill")
-                }
+                DiaperListView()
+                    .tabItem {
+                        Label("Diaper", systemImage: "drop.fill")
+                    }
 
-            MoreView()
-                .tabItem {
-                    Label("More", systemImage: "ellipsis.circle.fill")
-                }
+                MoreView()
+                    .tabItem {
+                        Label("More", systemImage: "ellipsis.circle.fill")
+                    }
+            }
         }
     }
 }

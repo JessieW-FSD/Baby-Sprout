@@ -3,6 +3,11 @@ import SwiftData
 
 @main
 struct easy_babyApp: App {
+    init() {
+        UserDefaults.standard.register(defaults: ["reminderEnabled": true])
+        ReminderManager.requestPermission()
+    }
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             FeedingEntry.self,
