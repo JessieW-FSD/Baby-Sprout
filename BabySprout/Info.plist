@@ -4,9 +4,9 @@
 <dict>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>remote-notification</string>
-	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>BabySprout uses your camera to take photos for event logs.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BabySprout accesses your photo library to attach photos to event logs.</string>
 </dict>
 </plist>

@@ -20,11 +20,18 @@ struct DataExporter {
         return f
     }
 
+    static func cleanUpExportFiles() {
+        let tempDir = FileManager.default.temporaryDirectory
+        guard let files = try? FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil) else { return }
+        for file in files where file.lastPathComponent.contains("_report_") {
+            try? FileManager.default.removeItem(at: file)
+        }
+    }
+
     // MARK: - CSV
 
     func feedingCSV(_ entries: [FeedingEntry]) -> String {
         var lines = ["Date,Time,Type,Amount (mL),Left (min),Right (min),First Side,Notes"]
-        let df = dateFormatter
         for e in entries {
             let date = dayFormatter.string(from: e.timestamp)
             let time = DateFormatter.localizedString(from: e.timestamp, dateStyle: .none, timeStyle: .short)
@@ -108,6 +115,8 @@ struct DataExporter {
         growth: [GrowthEntry],
         customEvents: [CustomEventEntry] = []
     ) throws -> URL? {
+        DataExporter.cleanUpExportFiles()
+
         var sections: [String] = []
         if !feedings.isEmpty { sections.append("=== FEEDING ===\n" + feedingCSV(feedings)) }
         if !sleeps.isEmpty { sections.append("=== SLEEP ===\n" + sleepCSV(sleeps)) }
@@ -135,6 +144,8 @@ struct DataExporter {
         customEvents: [CustomEventEntry] = []
     ) throws -> URL? {
         #if canImport(UIKit)
+        DataExporter.cleanUpExportFiles()
+
         let pageWidth: CGFloat = 612
         let pageHeight: CGFloat = 792
         let margin: CGFloat = 40
@@ -166,7 +177,6 @@ struct DataExporter {
             func drawText(_ text: String, font: UIFont, x: CGFloat = margin, maxWidth: CGFloat? = nil) {
                 let w = maxWidth ?? contentWidth
                 let attr: [NSAttributedString.Key: Any] = [.font: font]
-                let rect = CGRect(x: x, y: y, width: w, height: 1000)
                 let boundingRect = (text as NSString).boundingRect(with: CGSize(width: w, height: 1000), options: .usesLineFragmentOrigin, attributes: attr, context: nil)
                 checkPage(needed: boundingRect.height + 4)
                 (text as NSString).draw(in: CGRect(x: x, y: y, width: w, height: boundingRect.height), withAttributes: attr)
@@ -191,7 +201,6 @@ struct DataExporter {
             drawText("Period: \(dateRange)", font: bodyFont)
             y += 10
 
-            // Feeding
             if !feedings.isEmpty {
                 drawText("Feeding (\(feedings.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 50, 50, 60, 50, 50, contentWidth - 350]
@@ -207,7 +216,6 @@ struct DataExporter {
                 y += 10
             }
 
-            // Sleep
             if !sleeps.isEmpty {
                 drawText("Sleep (\(sleeps.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 60, 60, 70, contentWidth - 280]
@@ -222,7 +230,6 @@ struct DataExporter {
                 y += 10
             }
 
-            // Diapers
             if !diapers.isEmpty {
                 drawText("Diapers (\(diapers.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 60, 50, 70, contentWidth - 270]
@@ -236,7 +243,6 @@ struct DataExporter {
                 y += 10
             }
 
-            // Supplements
             if !supplements.isEmpty {
                 drawText("Supplements (\(supplements.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 60, 100, 80, contentWidth - 330]
@@ -249,7 +255,6 @@ struct DataExporter {
                 y += 10
             }
 
-            // Growth
             if !growth.isEmpty {
                 drawText("Growth (\(growth.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 80, 80, 80, contentWidth - 330]
@@ -264,7 +269,6 @@ struct DataExporter {
                 y += 10
             }
 
-            // Custom Events
             if !customEvents.isEmpty {
                 drawText("Events (\(customEvents.count) entries)", font: headingFont)
                 let widths: [CGFloat] = [90, 60, 100, contentWidth - 250]

@@ -1,10 +1,13 @@
 import ActivityKit
 import Foundation
+import os
+
+private let logger = Logger(subsystem: "dev.fullstackdata.baby-sprout", category: "SleepActivity")
 
 enum SleepActivityManager {
     static func startActivity(startTime: Date) {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else {
-            print("[SleepActivity] Live Activities not enabled — check Settings > BabySprout > Live Activities")
+            logger.notice("Live Activities not enabled — check Settings > BabySprout > Live Activities")
             return
         }
 
@@ -14,7 +17,7 @@ enum SleepActivityManager {
 
         do {
             let newActivity = try Activity.request(attributes: attributes, content: content, pushType: nil)
-            print("[SleepActivity] Started activity: \(newActivity.id)")
+            logger.info("Started activity: \(newActivity.id)")
 
             Task {
                 for activity in Activity<SleepActivityAttributes>.activities where activity.id != newActivity.id {
@@ -22,7 +25,7 @@ enum SleepActivityManager {
                 }
             }
         } catch {
-            print("[SleepActivity] Failed to start: \(error)")
+            logger.error("Failed to start: \(error.localizedDescription)")
         }
     }
 

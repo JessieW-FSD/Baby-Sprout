@@ -91,12 +91,18 @@ struct DiaperListView: View {
             .sheet(item: $entryToEdit) { entry in
                 AddDiaperView(entryToEdit: entry)
             }
+            .overlay {
+                if diapers.isEmpty {
+                    ContentUnavailableView("No Diapers", systemImage: "drop", description: Text("Tap + or use Quick Add to log a diaper change"))
+                }
+            }
         }
     }
 
     private func quickAdd(_ type: DiaperType) {
         let entry = DiaperEntry(diaperType: type)
         modelContext.insert(entry)
+        ReminderManager.reschedule()
     }
 
     private func colorForType(_ type: DiaperType) -> Color {

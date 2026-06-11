@@ -269,7 +269,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Sleep​Widget​ExtensionExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9XYTS9GGZ8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Sleep​Widget​Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Sleep​Widget​Extension";
@@ -305,7 +305,7 @@
 				CODE_SIGN_ENTITLEMENTS = "Sleep​Widget​ExtensionExtension.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9XYTS9GGZ8;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "Sleep​Widget​Extension/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Sleep​Widget​Extension";
@@ -343,7 +343,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9XYTS9GGZ8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -392,7 +392,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 9XYTS9GGZ8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;

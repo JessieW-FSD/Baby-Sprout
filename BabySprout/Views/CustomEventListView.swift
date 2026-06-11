@@ -40,6 +40,7 @@ struct CustomEventListView: View {
                                                     .scaledToFill()
                                                     .frame(width: 48, height: 48)
                                                     .clipShape(RoundedRectangle(cornerRadius: 6))
+                                                    .accessibilityLabel("Photo \(index + 1) of \(entry.photoDataArray.count) for \(entry.title)")
                                             }
                                         }
                                     }

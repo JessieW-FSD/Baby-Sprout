@@ -1,8 +1,5 @@
 import SwiftUI
 import SwiftData
-#if canImport(UIKit)
-import UIKit
-#endif
 
 struct ExportView: View {
     @AppStorage(AppStorageKeys.babyName) private var babyName = ""
@@ -24,6 +21,8 @@ struct ExportView: View {
     @State private var includeEvents = true
     @State private var exportErrorMessage: String?
     @State private var showExportError = false
+    @State private var exportedFileURL: URL?
+    @State private var showShareSheet = false
 
     private var hasSelection: Bool {
         includeFeeding || includeSleep || includeDiaper || includeSupplement || includeGrowth || includeEvents
@@ -122,6 +121,11 @@ struct ExportView: View {
         } message: {
             Text(exportErrorMessage ?? "An unknown error occurred.")
         }
+        .sheet(isPresented: $showShareSheet) {
+            if let url = exportedFileURL {
+                ShareSheet(activityItems: [url])
+            }
+        }
     }
 
     private enum ExportFormat {
@@ -153,24 +157,23 @@ struct ExportView: View {
                 )
             }
             guard let url else { return }
-            presentShareSheet(for: url)
+            exportedFileURL = url
+            showShareSheet = true
         } catch {
             exportErrorMessage = error.localizedDescription
             showExportError = true
         }
     }
-
-    private func presentShareSheet(for url: URL) {
-        #if os(iOS)
-        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-              let rootVC = windowScene.windows.first?.rootViewController else { return }
-        var presenter = rootVC
-        while let presented = presenter.presentedViewController {
-            presenter = presented
-        }
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        activityVC.popoverPresentationController?.sourceView = presenter.view
-        presenter.present(activityVC, animated: true)
-        #endif
-    }
 }
+
+#if os(iOS)
+struct ShareSheet: UIViewControllerRepresentable {
+    let activityItems: [Any]
+
+    func makeUIViewController(context: Context) -> UIActivityViewController {
+        UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
+    }
+
+    func updateUIViewController(_ uiViewController: UIActivityViewController, context: Context) {}
+}
+#endif
