@@ -10,6 +10,7 @@ struct ExportView: View {
     @Query(sort: \SupplementEntry.timestamp, order: .reverse) private var allSupplements: [SupplementEntry]
     @Query(sort: \GrowthEntry.date, order: .reverse) private var allGrowth: [GrowthEntry]
     @Query(sort: \CustomEventEntry.timestamp, order: .reverse) private var allEvents: [CustomEventEntry]
+    @Query(sort: \FoodEntry.timestamp, order: .reverse) private var allFoods: [FoodEntry]
 
     @State private var fromDate = Calendar.current.startOfDay(for: Calendar.current.date(byAdding: .weekOfYear, value: -1, to: .now) ?? .now)
     @State private var toDate = Date.now
@@ -19,13 +20,14 @@ struct ExportView: View {
     @State private var includeSupplement = true
     @State private var includeGrowth = true
     @State private var includeEvents = true
+    @State private var includeFood = true
     @State private var exportErrorMessage: String?
     @State private var showExportError = false
     @State private var exportedFileURL: URL?
     @State private var showShareSheet = false
 
     private var hasSelection: Bool {
-        includeFeeding || includeSleep || includeDiaper || includeSupplement || includeGrowth || includeEvents
+        includeFeeding || includeSleep || includeDiaper || includeSupplement || includeGrowth || includeEvents || includeFood
     }
 
     private func filteredFeedings() -> [FeedingEntry] {
@@ -64,6 +66,12 @@ struct ExportView: View {
         return allEvents.filter { $0.timestamp >= start && $0.timestamp < startOfNextDay(toDate) }
     }
 
+    private func filteredFoods() -> [FoodEntry] {
+        guard includeFood else { return [] }
+        let start = Calendar.current.startOfDay(for: fromDate)
+        return allFoods.filter { $0.timestamp >= start && $0.timestamp < startOfNextDay(toDate) }
+    }
+
     private func startOfNextDay(_ date: Date) -> Date {
         let start = Calendar.current.startOfDay(for: date)
         return Calendar.current.date(byAdding: .day, value: 1, to: start) ?? start
@@ -71,7 +79,7 @@ struct ExportView: View {
 
     private var totalEntries: Int {
         filteredFeedings().count + filteredSleeps().count + filteredDiapers().count
-            + filteredSupplements().count + filteredGrowth().count + filteredEvents().count
+            + filteredSupplements().count + filteredGrowth().count + filteredEvents().count + filteredFoods().count
     }
 
     var body: some View {
@@ -83,6 +91,7 @@ struct ExportView: View {
 
             Section("Categories") {
                 Toggle("Feeding", isOn: $includeFeeding)
+                Toggle("Food", isOn: $includeFood)
                 Toggle("Sleep", isOn: $includeSleep)
                 Toggle("Diapers", isOn: $includeDiaper)
                 Toggle("Supplements", isOn: $includeSupplement)
@@ -144,7 +153,8 @@ struct ExportView: View {
                     diapers: filteredDiapers(),
                     supplements: filteredSupplements(),
                     growth: filteredGrowth(),
-                    customEvents: filteredEvents()
+                    customEvents: filteredEvents(),
+                    foods: filteredFoods()
                 )
             case .pdf:
                 url = try exporter.generatePDF(
@@ -153,7 +163,8 @@ struct ExportView: View {
                     diapers: filteredDiapers(),
                     supplements: filteredSupplements(),
                     growth: filteredGrowth(),
-                    customEvents: filteredEvents()
+                    customEvents: filteredEvents(),
+                    foods: filteredFoods()
                 )
             }
             guard let url else { return }

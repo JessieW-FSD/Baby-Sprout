@@ -99,12 +99,25 @@ final class CustomEventEntry {
     }
 }
 
-import ActivityKit
+@Model
+final class FoodEntry {
+    var timestamp: Date
+    var foodName: String
+    var foodCategoryRaw: String
+    var amount: Double?
+    var amountUnitRaw: String
+    var reactionRaw: String?
+    var notes: String
 
-struct SleepActivityAttributes: ActivityAttributes {
-    struct ContentState: Codable, Hashable {
-        var endTime: Date?
+    init(timestamp: Date = Date(), foodName: String = "", foodCategoryRaw: String = "Other", amount: Double? = nil, amountUnitRaw: String = "serving", reactionRaw: String? = nil, notes: String = "") {
+        self.timestamp = timestamp
+        self.foodName = foodName
+        self.foodCategoryRaw = foodCategoryRaw
+        self.amount = amount
+        self.amountUnitRaw = amountUnitRaw
+        self.reactionRaw = reactionRaw
+        self.notes = notes
     }
-    var sleepStartTime: Date
-    var babyName: String
 }
+
+

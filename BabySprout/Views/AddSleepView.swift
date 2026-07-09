@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import WidgetKit
-import ActivityKit
 
 struct AddSleepView: View {
     @Environment(\.modelContext) private var modelContext
@@ -71,11 +70,6 @@ struct AddSleepView: View {
         }
         ReminderManager.reschedule()
         WidgetCenter.shared.reloadAllTimelines()
-        if isStillSleeping {
-            SleepActivityManager.startActivity(startTime: startTime)
-        } else {
-            SleepActivityManager.endAllActivities()
-        }
         dismiss()
     }
 }

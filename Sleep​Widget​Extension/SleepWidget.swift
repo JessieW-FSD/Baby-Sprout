@@ -34,6 +34,7 @@ struct SleepWidgetProvider: TimelineProvider {
             let container = try ModelContainer(
                 for: SleepEntry.self, FeedingEntry.self, DiaperEntry.self,
                      SupplementEntry.self, GrowthEntry.self, CustomEventEntry.self,
+                     FoodEntry.self,
                 configurations: config
             )
             let context = ModelContext(container)
@@ -103,6 +104,5 @@ struct SleepWidget: Widget {
 struct SleepWidgetBundle: WidgetBundle {
     var body: some Widget {
         SleepWidget()
-        SleepLiveActivity()
     }
 }

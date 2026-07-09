@@ -47,5 +47,6 @@ struct ContentView: View {
             SupplementEntry.self,
             GrowthEntry.self,
             CustomEventEntry.self,
+            FoodEntry.self,
         ], inMemory: true)
 }

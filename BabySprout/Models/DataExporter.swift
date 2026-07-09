@@ -83,6 +83,19 @@ struct DataExporter {
         return lines.joined(separator: "\n")
     }
 
+    func foodCSV(_ entries: [FoodEntry]) -> String {
+        var lines = ["Date,Time,Food Name,Category,Amount,Unit,Reaction,Notes"]
+        for e in entries {
+            let date = dayFormatter.string(from: e.timestamp)
+            let time = DateFormatter.localizedString(from: e.timestamp, dateStyle: .none, timeStyle: .short)
+            let amount = e.amount.map { $0.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int($0))" : String(format: "%.1f", $0) } ?? ""
+            let unit = e.amount != nil ? e.amountUnit.rawValue : ""
+            let reaction = e.reaction?.rawValue ?? ""
+            lines.append("\(date),\(time),\(csvEscape(e.foodName)),\(e.foodCategory.rawValue),\(amount),\(unit),\(reaction),\(csvEscape(e.notes))")
+        }
+        return lines.joined(separator: "\n")
+    }
+
     func customEventCSV(_ entries: [CustomEventEntry]) -> String {
         var lines = ["Date,Time,Title,Description,Photos,Notes"]
         for e in entries {
@@ -113,12 +126,14 @@ struct DataExporter {
         diapers: [DiaperEntry],
         supplements: [SupplementEntry],
         growth: [GrowthEntry],
-        customEvents: [CustomEventEntry] = []
+        customEvents: [CustomEventEntry] = [],
+        foods: [FoodEntry] = []
     ) throws -> URL? {
         DataExporter.cleanUpExportFiles()
 
         var sections: [String] = []
         if !feedings.isEmpty { sections.append("=== FEEDING ===\n" + feedingCSV(feedings)) }
+        if !foods.isEmpty { sections.append("=== FOOD ===\n" + foodCSV(foods)) }
         if !sleeps.isEmpty { sections.append("=== SLEEP ===\n" + sleepCSV(sleeps)) }
         if !diapers.isEmpty { sections.append("=== DIAPERS ===\n" + diaperCSV(diapers)) }
         if !supplements.isEmpty { sections.append("=== SUPPLEMENTS ===\n" + supplementCSV(supplements)) }
@@ -141,7 +156,8 @@ struct DataExporter {
         diapers: [DiaperEntry],
         supplements: [SupplementEntry],
         growth: [GrowthEntry],
-        customEvents: [CustomEventEntry] = []
+        customEvents: [CustomEventEntry] = [],
+        foods: [FoodEntry] = []
     ) throws -> URL? {
         #if canImport(UIKit)
         DataExporter.cleanUpExportFiles()
@@ -212,6 +228,21 @@ struct DataExporter {
                     let left = e.leftDurationMinutes.map { "\($0)m" } ?? "-"
                     let right = e.rightDurationMinutes.map { "\($0)m" } ?? "-"
                     drawRow([date, time, e.feedingType.rawValue, ml, left, right, e.notes], widths: widths)
+                }
+                y += 10
+            }
+
+            if !foods.isEmpty {
+                drawText("Food (\(foods.count) entries)", font: headingFont)
+                let foodWidths: [CGFloat] = [90, 50, 100, 60, 40, 50, 60, contentWidth - 450]
+                drawRow(["Date", "Time", "Food", "Category", "Amt", "Unit", "Reaction", "Notes"], widths: foodWidths, font: bodyBold)
+                for e in foods {
+                    let date = dayFormatter.string(from: e.timestamp)
+                    let time = DateFormatter.localizedString(from: e.timestamp, dateStyle: .none, timeStyle: .short)
+                    let amount = e.amount.map { $0.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int($0))" : String(format: "%.1f", $0) } ?? "-"
+                    let unit = e.amount != nil ? e.amountUnit.rawValue : "-"
+                    let reaction = e.reaction?.rawValue ?? "-"
+                    drawRow([date, time, e.foodName, e.foodCategory.rawValue, amount, unit, reaction, e.notes], widths: foodWidths)
                 }
                 y += 10
             }

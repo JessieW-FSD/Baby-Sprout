@@ -9,6 +9,7 @@ struct DashboardView: View {
     @Query(sort: \SupplementEntry.timestamp, order: .reverse) private var allSupplements: [SupplementEntry]
     @Query(sort: \GrowthEntry.date, order: .reverse) private var allGrowth: [GrowthEntry]
     @Query(sort: \CustomEventEntry.timestamp, order: .reverse) private var allEvents: [CustomEventEntry]
+    @Query(sort: \FoodEntry.timestamp, order: .reverse) private var allFoods: [FoodEntry]
 
     @AppStorage(AppStorageKeys.dayStartHour) private var dayStartHour = 8
     @AppStorage(AppStorageKeys.babyName) private var babyName = ""
@@ -19,6 +20,7 @@ struct DashboardView: View {
     @State private var showAddSupplement = false
     @State private var showAddGrowth = false
     @State private var showAddEvent = false
+    @State private var showAddFood = false
     @State private var sleepToEnd: SleepEntry?
 
     private var todayFeedings: [FeedingEntry] {
@@ -39,6 +41,10 @@ struct DashboardView: View {
 
     private var todayEvents: [CustomEventEntry] {
         filterToday(allEvents, keyPath: \.timestamp)
+    }
+
+    private var todayFoods: [FoodEntry] {
+        filterToday(allFoods, keyPath: \.timestamp)
     }
 
     private func filterToday<T>(_ items: [T], keyPath: KeyPath<T, Date>) -> [T] {
@@ -85,14 +91,6 @@ struct DashboardView: View {
     private var avgSleepSeconds: TimeInterval {
         guard !completedSleeps.isEmpty else { return 0 }
         return totalSleepSeconds / Double(completedSleeps.count)
-    }
-
-    private var minSleepSeconds: TimeInterval? {
-        completedSleeps.compactMap(\.duration).min()
-    }
-
-    private var maxSleepSeconds: TimeInterval? {
-        completedSleeps.compactMap(\.duration).max()
     }
 
     // MARK: - Diaper Stats
@@ -149,7 +147,7 @@ struct DashboardView: View {
                         }
                     }
 
-                    // MARK: Feeding + Diapers
+                    // MARK: Feeding + Food
                     HStack(spacing: 12) {
                         StatCard(title: "Feeding", icon: "cup.and.saucer.fill", color: .blue, lastEventDate: allFeedings.first?.timestamp) {
                             showAddFeeding = true
@@ -160,33 +158,24 @@ struct DashboardView: View {
                                 CompactStat(label: "Breast", value: "--")
                             } else if breastFeedings.isEmpty {
                                 CompactStat(label: "Total", value: "\(totalBottleML) mL")
-                                if let last = bottleFeedings.first {
-                                    CompactStat(label: "Last feed", value: last.timestamp.formatted(.dateTime.hour().minute()))
-                                }
                             } else if bottleFeedings.isEmpty {
                                 CompactStat(label: "L / R", value: "\(formatMinutes(totalLeftMinutes)) / \(formatMinutes(totalRightMinutes))")
-                                CompactStat(label: "Total", value: formatMinutes(totalBreastMinutes))
                             } else {
                                 CompactStat(label: "Bottle", value: "\(totalBottleML) mL")
-                                CompactStat(label: "Breast", value: "\(formatMinutes(totalBreastMinutes)) (L \(formatMinutes(totalLeftMinutes)) / R \(formatMinutes(totalRightMinutes)))")
+                                CompactStat(label: "Breast", value: formatMinutes(totalBreastMinutes))
                             }
                         }
-                        .containerRelativeFrame(.horizontal) { width, _ in
-                            (width - 12) * 0.55
-                        }
+                        .frame(maxHeight: .infinity)
 
-                        StatCard(title: "Diapers", icon: "drop.fill", color: .orange, lastEventDate: allDiapers.first?.timestamp) {
-                            showAddDiaper = true
+                        StatCard(title: "Food", icon: "fork.knife", color: .orange, lastEventDate: allFoods.first?.timestamp) {
+                            showAddFood = true
                         } content: {
-                            CompactStat(label: "Total", value: "\(todayDiapers.count)")
-                            TimelineView(.periodic(from: .now, by: 60)) { context in
-                                VStack(alignment: .leading) {
-                                    CompactStat(label: "Pee" + (lastPeeDate.map { " · \(timeSince(from: $0, to: context.date))" } ?? ""), value: "\(peeCount)")
-                                    CompactStat(label: "Poo" + (lastPooDate.map { " · \(timeSince(from: $0, to: context.date))" } ?? ""), value: "\(pooCount)")
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                            CompactStat(label: "Logged today", value: "\(todayFoods.count)")
+                            if let last = allFoods.first {
+                                CompactStat(label: "Last", value: last.foodName)
                             }
                         }
+                        .frame(maxHeight: .infinity)
                     }
 
                     // MARK: Sleep Card
@@ -223,25 +212,44 @@ struct DashboardView: View {
                         }
                     }
 
-                    // MARK: Supplements & Events
+                    // MARK: Supplements + Diapers
                     HStack(spacing: 12) {
                         StatCard(title: "Supplements", icon: "pill.fill", color: .green) {
                             showAddSupplement = true
                         } content: {
                             CompactStat(label: "Logged today", value: "\(todaySupplements.count)")
                         }
+                        .frame(maxHeight: .infinity)
 
-                        StatCard(title: "Events", icon: "note.text", color: .red) {
-                            showAddEvent = true
+                        StatCard(title: "Diapers", icon: "drop.fill", color: .yellow, lastEventDate: allDiapers.first?.timestamp) {
+                            showAddDiaper = true
                         } content: {
-                            CompactStat(label: "Logged today", value: "\(todayEvents.count)")
+                            CompactStat(label: "Total", value: "\(todayDiapers.count)")
+                            TimelineView(.periodic(from: .now, by: 60)) { context in
+                                VStack(alignment: .leading) {
+                                    CompactStat(label: "Pee" + (lastPeeDate.map { " · \(timeSince(from: $0, to: context.date))" } ?? ""), value: "\(peeCount)")
+                                    CompactStat(label: "Poo" + (lastPooDate.map { " · \(timeSince(from: $0, to: context.date))" } ?? ""), value: "\(pooCount)")
+                                }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            }
                         }
+                        .frame(maxHeight: .infinity)
+                    }
+
+                    // MARK: Events
+                    StatCard(title: "Events", icon: "note.text", color: .red) {
+                        showAddEvent = true
+                    } content: {
+                        CompactStat(label: "Logged today", value: "\(todayEvents.count)")
                     }
 
                     // MARK: Last Entries
                     VStack(spacing: 12) {
                         if let lastFeeding = allFeedings.first {
                             LastEntryCard(title: "Last Feeding", time: lastFeeding.timestamp, detail: lastFeeding.summary)
+                        }
+                        if let lastFood = allFoods.first {
+                            LastEntryCard(title: "Last Food", time: lastFood.timestamp, detail: "\(lastFood.foodName) · \(lastFood.summary)")
                         }
                         if let lastSleep = allSleeps.first {
                             LastEntryCard(title: "Last Sleep", time: lastSleep.startTime, detail: lastSleep.isActive ? "Currently sleeping" : lastSleep.durationFormatted)
@@ -263,6 +271,7 @@ struct DashboardView: View {
             .sheet(isPresented: $showAddSupplement) { AddSupplementView() }
             .sheet(isPresented: $showAddGrowth) { AddGrowthView() }
             .sheet(isPresented: $showAddEvent) { AddCustomEventView() }
+            .sheet(isPresented: $showAddFood) { AddFoodView() }
             .sheet(item: $sleepToEnd) { entry in
                 EndSleepView(entry: entry)
             }
@@ -338,6 +347,7 @@ struct StatCard<Content: View>: View {
                 }
             }
             content
+            Spacer(minLength: 0)
         }
         .padding(12)
         .background(.regularMaterial)

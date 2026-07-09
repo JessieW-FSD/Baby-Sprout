@@ -21,6 +21,12 @@ struct MoreView: View {
                 }
 
                 NavigationLink {
+                    FoodListView()
+                } label: {
+                    Label("Food", systemImage: "fork.knife")
+                }
+
+                NavigationLink {
                     SupplementListView()
                 } label: {
                     Label("Supplements", systemImage: "pill.fill")

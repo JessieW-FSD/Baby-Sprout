@@ -17,6 +17,7 @@ struct BabySproutApp: App {
             SupplementEntry.self,
             GrowthEntry.self,
             CustomEventEntry.self,
+            FoodEntry.self,
         ])
         let modelConfiguration = ModelConfiguration(
             schema: schema,

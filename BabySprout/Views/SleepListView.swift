@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import WidgetKit
-import ActivityKit
 
 struct SleepListView: View {
     @Environment(\.modelContext) private var modelContext
@@ -58,9 +57,6 @@ struct SleepListView: View {
                         }
                         .onDelete { offsets in
                             for index in offsets {
-                                if entries[index].isActive {
-                                    SleepActivityManager.endAllActivities()
-                                }
                                 modelContext.delete(entries[index])
                             }
                             WidgetCenter.shared.reloadAllTimelines()
@@ -131,7 +127,6 @@ struct EndSleepView: View {
                         entry.endTime = wakeTime
                         ReminderManager.reschedule()
                         WidgetCenter.shared.reloadAllTimelines()
-                        SleepActivityManager.endAllActivities()
                         dismiss()
                     }
                 }
